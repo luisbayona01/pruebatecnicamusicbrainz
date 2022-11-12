@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+
+ <head>
+   <meta charset="UTF-8">
+   <title>Titulo del Documento</title>
+ </head>
+
+ <body>
+   <div class="container">
+  <div class="form-group">
+  <select id="opciones" class="form-control">
+     <option value="10">10</option>
+     <option value="20">20</option>
+     <option value="50">50</option>
+     <option value="100">100</option>
+  
+  </select>    
+</div>
+ <table class="table">
+  <thead>
+     <th>id</th>
+     <th>name</th>
+     <th>disambiguation</th>
+     
+  </thead>  
+<tbody id="tbody">
+   
+
+</tbody>
+
+ </table>  
+</div>
+
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+<script>
+const opciones=document.getElementById('opciones');
+ let url = "https://musicbrainz.org/ws/2/genre/all?limit=10&offset=10&fmt=json"
+cargar(url)
+
+function cargar(url){
+fetch(url, {
+  method: 'GET', // or 'PUT'
+  
+}).then(res => res.json())
+.catch(error => console.error('Error:', error))
+.then(response =>  render(response.genres)) //console.log('Success:', response.genres));
+
+}
+
+function render(data){
+let tbody= document.getElementById('tbody')
+tbody.innerHTML='';
+for (let i = 0; i < data.length; i++) {
+   var tableRow = "<tr>"
+                + "<td class='td-data'>" + data[i].id + "</td>"
+                + "<td class='td-data'>" + data[i].name + "</td>"
+                + "<td class='td-data'>" + data[i].disambiguation + "</td>"
+                
+                + "</tr>";
+            tbody.innerHTML += tableRow;
+
+}
+ 
+}
+
+opciones.addEventListener("change", function(){
+
+ let offset=this.value;  
+   let url="https://musicbrainz.org/ws/2/genre/all?limit=10&offset="+offset+"&fmt=json";  
+  cargar(url);
+
+});
+
+</script>
+
+ </body>
+</html>
