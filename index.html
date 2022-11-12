@@ -30,48 +30,88 @@
 </tbody>
 
  </table>  
+
+ <nav aria-label="Page navigation example">
+  <ul class="pagination">
+    
+  </ul>
+  <!-- <li class="page-item"><a class="page-link" href="#">1</a></li>
+    <li class="page-item"><a class="page-link" href="#">2</a></li>
+    <li class="page-item"><a class="page-link" href="#">3</a></li>-->
+</nav>
 </div>
 
    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
 <script>
-const opciones=document.getElementById('opciones');
- let url = "https://musicbrainz.org/ws/2/genre/all?limit=10&offset=10&fmt=json"
-cargar(url)
+const options = document.querySelector("#opciones");
 
-function cargar(url){
-fetch(url, {
-  method: 'GET', // or 'PUT'
-  
-}).then(res => res.json())
-.catch(error => console.error('Error:', error))
-.then(response =>  render(response.genres)) //console.log('Success:', response.genres));
+      const getData = async (limit, offset, select = false) => {
+        try {
+          const fetchData = await fetch(
+            `https://musicbrainz.org/ws/2/genre/all?limit=${limit}&offset=${offset}&fmt=json`,
+          );
+          const result = await fetchData.json();
+          putDataOnTable(result, select);
+        } catch (err) {
+          console.log(err);
+        }
+      };
 
-}
+      const buttonPaginationCLick = (e) => {
+        e.preventDefault();
+        console.log("you has called meee :D ");
 
-function render(data){
-let tbody= document.getElementById('tbody')
-tbody.innerHTML='';
-for (let i = 0; i < data.length; i++) {
-   var tableRow = "<tr>"
-                + "<td class='td-data'>" + data[i].id + "</td>"
-                + "<td class='td-data'>" + data[i].name + "</td>"
-                + "<td class='td-data'>" + data[i].disambiguation + "</td>"
-                
-                + "</tr>";
-            tbody.innerHTML += tableRow;
+        const ofsset = e.target.getAttribute("data-offset");
+        const number = options.value;
+        getData(number, ofsset, false);
+      };
 
-}
- 
-}
+      const makePagination = (offset, totalRegisters) => {
+        const pagination = Math.round(totalRegisters / offset);
+        const myList = Array(pagination)
+          .fill()
+          .map((u, index) => ({ offset: index * offset, num: index + 1 }));
+        const paginDom = document.querySelector(".pagination");
+        let HTML_PAGINATE = "";
 
-opciones.addEventListener("change", function(){
+        myList.map((el) => {
+          HTML_PAGINATE += `<li class="page-item"><a onclick="buttonPaginationCLick(event)" class="page-link" href="#" data-offset="${el.offset}">${el.num}</a></li>`;
+        });
 
- let offset=this.value;  
-   let url="https://musicbrainz.org/ws/2/genre/all?limit=10&offset="+offset+"&fmt=json";  
-  cargar(url);
+        paginDom.innerHTML = HTML_PAGINATE;
 
-});
+        const buttonPage = document.querySelector(".page-item > .page-link");
 
+        buttonPage.addEventListener("click", (e) => {
+          e.preventDefault();
+          console.log("hello");
+        });
+
+        //console.log('list:', offset, 'another: ', totalRegisters);
+        //console.log('total: ', pagination);
+        //console.log(myList);
+      };
+
+      const putDataOnTable = (data, select) => {
+        const tbody = document.getElementById("tbody");
+        tbody.innerHTML = "";
+        data.genres.map((element) => {
+          tbody.innerHTML += `<tr>
+                 <td class='td-data'>"${element.id} </td>
+                 <td class='td-data'>" ${element.name}</td>
+                 <td class='td-data'>"${element.disambiguation}</td>
+                 </tr>`;
+        });
+
+        if (select) makePagination(data["genre-offset"], data["genre-count"]);
+      };
+      
+       getData(10, 10, true);
+
+      options.addEventListener("change", (event) => {
+        const { value } = event.target;
+        getData(value, value, true);
+      });
 </script>
 
  </body>
